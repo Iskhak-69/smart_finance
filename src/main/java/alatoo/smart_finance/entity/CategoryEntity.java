@@ -7,19 +7,16 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "users") // Указываем имя таблицы
-public class UserEntity {
+@Table(name = "categories") // Указываем имя таблицы
+public class CategoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true) // Уникальное и обязательное поле
-    private String username;
+    private String name;
 
-    @Column(nullable = false) // Обязательное поле
-    private String password; // Хранить в зашифрованном виде
-
-    @OneToMany(mappedBy = "user") // Указываем связь с транзакциями
+    @OneToMany(mappedBy = "category") // Указываем связь с транзакциями
     private List<TransactionEntity> transactions;
 }
