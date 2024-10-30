@@ -25,7 +25,7 @@ public class UserController {
     public ResponseEntity<UserEntity> createUser(@RequestBody UserDTO userDTO) {
         UserEntity user = new UserEntity();
         user.setUsername(userDTO.getUsername());
-        user.setPassword(userDTO.getPassword()); // Пароль нужно хешировать
+        user.setPassword(userDTO.getPassword());
         return ResponseEntity.ok(userService.save(user));
     }
 

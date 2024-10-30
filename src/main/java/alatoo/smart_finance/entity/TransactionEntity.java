@@ -9,14 +9,14 @@ import java.time.LocalDate;
 
 @Entity
 @Data
-@Table(name = "transactions") // Указываем имя таблицы
+@Table(name = "transactions")
 public class TransactionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false) // Обязательное поле
+    @Column(nullable = false)
     private BigDecimal amount;
 
     private String description;
@@ -24,13 +24,13 @@ public class TransactionEntity {
     @Column(nullable = false)
     private LocalDate date;
 
-    @Enumerated(EnumType.STRING) // Храним как строку
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionType type;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user; // Связь с пользователем
+    private UserEntity user;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

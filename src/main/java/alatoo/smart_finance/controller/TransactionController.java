@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -28,12 +29,16 @@ public class TransactionController {
     private CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<TransactionEntity>> getAllTransactions() {
-        return ResponseEntity.ok(transactionService.findAll());
+    public ResponseEntity<List<TransactionDTO>> getAllTransactions() {
+        List<TransactionEntity> transactions = transactionService.findAll();
+        List<TransactionDTO> transactionDTOs = transactions.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(transactionDTOs);
     }
 
     @PostMapping
-    public ResponseEntity<TransactionEntity> createTransaction(@RequestBody TransactionDTO transactionDTO) {
+    public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionDTO transactionDTO) {
         TransactionEntity transaction = new TransactionEntity();
         transaction.setAmount(transactionDTO.getAmount());
         transaction.setDescription(transactionDTO.getDescription());
@@ -43,34 +48,52 @@ public class TransactionController {
         // Получаем пользователя по ID
         UserEntity user = userService.findById(transactionDTO.getUserId());
         if (user == null) {
-            return ResponseEntity.badRequest().body(null); // или выбрасываем исключение
+            return ResponseEntity.badRequest().body(null);
         }
         transaction.setUser(user);
 
         // Получаем категорию по ID
         CategoryEntity category = categoryService.findById(transactionDTO.getCategoryId());
         if (category == null) {
-            return ResponseEntity.badRequest().body(null); // или выбрасываем исключение
+            return ResponseEntity.badRequest().body(null);
         }
         transaction.setCategory(category);
 
-        return ResponseEntity.ok(transactionService.save(transaction));
+        TransactionEntity savedTransaction = transactionService.save(transaction);
+        return ResponseEntity.ok(convertToDTO(savedTransaction));
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<List<TransactionEntity>> getTransactionsByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(transactionService.findByUserId(userId));
+    public ResponseEntity<List<TransactionDTO>> getTransactionsByUserId(@PathVariable Long userId) {
+        List<TransactionEntity> transactions = transactionService.findByUserId(userId);
+        List<TransactionDTO> transactionDTOs = transactions.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(transactionDTOs);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TransactionEntity> getTransactionById(@PathVariable Long id) {
+    public ResponseEntity<TransactionDTO> getTransactionById(@PathVariable Long id) {
         TransactionEntity transaction = transactionService.findById(id);
-        return transaction != null ? ResponseEntity.ok(transaction) : ResponseEntity.notFound().build();
+        return transaction != null ? ResponseEntity.ok(convertToDTO(transaction)) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
         transactionService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Helper method to convert TransactionEntity to TransactionDTO
+    private TransactionDTO convertToDTO(TransactionEntity transaction) {
+        TransactionDTO dto = new TransactionDTO();
+        dto.setId(transaction.getId());
+        dto.setAmount(transaction.getAmount());
+        dto.setDescription(transaction.getDescription());
+        dto.setDate(transaction.getDate());
+        dto.setType(transaction.getType().name());
+        dto.setCategoryId(transaction.getCategory().getId());
+        dto.setUserId(transaction.getUser().getId());
+        return dto;
     }
 }
