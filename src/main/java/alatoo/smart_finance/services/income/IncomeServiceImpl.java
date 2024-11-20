@@ -57,4 +57,13 @@ public class IncomeServiceImpl implements IncomeService {
         }
     }
 
+    public void deleteIncome(Long id) {
+        Optional<Income> optionalIncome = incomeRepository.findById(id);
+        if (optionalIncome.isPresent()) {
+            incomeRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Income is not present with id " + id);
+        }
+    }
+
 }

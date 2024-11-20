@@ -53,4 +53,16 @@ public class IncomeController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteIncome(@PathVariable Long id) {
+        try {
+            incomeService.deleteIncome(id);
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
+        }
+    }
+
 }
